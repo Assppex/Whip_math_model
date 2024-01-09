@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title> Кнут Механика Дискретных Сред </title>
+		<script src = 'Chain2.js'>
+		</script>
+		<link rel = "stylesheet" type = "text/css" href = "chain2.css">
+	</head>
+	<body>
+		<div id = 'Canv'>
+			<b>
+			</br>
+			</br>
+			<br><label> Отношение жесткость/масса <input type = 'text' id = 'CM' value = '1000'></label>
+			</br>
+			</br>
+			<label>Шаг по времени <input type = 'text' id = 'timestep' value = '0.01'></label>
+			</br>
+			</br>
+			<label>Частота кадров<input type = 'range' id = 'FPS' min = 10 step = 10 value = 120 max = 120></label>
+			</br>
+			</br>
+			<label> Расстояние между частицами <input type = 'text' id = 'distance' value = '14'>
+			</br>
+			</br>
+			<label>Сопротивление <input type = 'text' id = 'B' value = '1'></label>
+			</br>
+			</br>
+			<label>Количество частиц <input type = 'text' id = 'Num' value = '60'></label>
+			</br>
+			</br>
+			<label>Частота колебаний <input type = 'text' id = 'freq' value = '5'></label>
+			</br>
+			</br>
+			<label>Амплитуда <input type = 'text' id = 'ampl' value = '30'></label>
+			</br>
+			</br>
+			<label>Отпустить левый конец <input type = 'checkbox' id = 'radio'></label>
+			</br>
+			</br>
+			<label>Рисовать каждый <input type = 'text' id = 'times' value = 1> шаг</label> 
+			</br>
+			</br>
+			<input type = "button" id = "New" value = "Обновить"/>
+			</br>
+			</br>
+			<input type="button" id = "Pause" value = "▶/||"/>
+			</b>
+		</div>
+		</br>
+		</br>
+		<div id = "canva">
+			<canvas id = 'cnv' width = 1000 height = 500 style='border: 1px solid black;'></canvas>
+		</div>
+	</body>
+</html>
