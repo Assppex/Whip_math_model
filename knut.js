@@ -16,8 +16,6 @@ function main() {
 	
 	var time = 0;
 	var time_waves = 0;
-	var last_part = [];
-	last_part.m = 10;
 	
 	var ctx = cnv.getContext('2d');
 	var h = cnv.height;
@@ -74,8 +72,8 @@ function main() {
 		frequency = document.getElementById('freq').value;
 
 		re_render(N,a);
-		time = 0;
 		a = Math.sqrt(Math.pow(particles[2].y - particles[1].y,2) + Math.pow(particles[2].x - particles[1].x,2))/2;
+		time = 0;
 		interv = setInterval(control,1000/fps);
 	}
 	
@@ -106,10 +104,6 @@ function main() {
 			tmp.dvy = 0;
 			particles[i] = tmp;
 		}
-		last_part.x = particles[N-1].x;
-		last_part.y = particles[N-1].y;
-		last_part.vy = 0;
-
 		return true;
 		
 	}
@@ -117,17 +111,15 @@ function main() {
 	
 	function physics()
 	{ 
-		dt = dt0*for_pause;		
+		dt = dt0*for_pause;
 		for (var i = 1; i<N-1; i++)
 		{ 
 			/*if(time_ct < 2000*dt)
 			{*/
-			console.log(amplitude, frequency)
 				particles[N-1].y = 200 - parseInt(amplitude)*Math.cos(parseInt(frequency)*time_waves);
 			// }
 			l_next = Math.sqrt(Math.pow(particles[i+1].x - particles[i].x,2) + Math.pow(particles[i+1].y - particles[i].y,2));
 			l_prev = Math.sqrt(Math.pow(particles[i].x - particles[i-1].x,2) + Math.pow(particles[i].y - particles[i-1].y,2));
-			
 			if (l_next < a)
 			{
 				FR = (l_next - a);//0
@@ -142,8 +134,32 @@ function main() {
 			{ 
 				FL = (l_prev - a);
 			}
-			dvx = cm*(FR*(particles[i+1].x - particles[i].x)/l_next - FL*(particles[i].x - particles[i-1].x)/l_prev) - Betta*particles[i].vx;
-			dvy = (cm*(FR*(particles[i+1].y - particles[i].y)/l_next - FL*(particles[i].y - particles[i-1].y)/l_prev)) - Betta*particles[i].vy;
+			let cos_phi = ((particles[i].x - particles[i - 1].x)*(particles[i+1].x - particles[i].x) + (particles[i].y - particles[i-1].y)*(particles[i+1].y - particles[i].y))/(l_prev*l_next);
+			let scalar_multiplication = ((particles[i].x - particles[i - 1].x)*(particles[i+1].x - particles[i].x) + (particles[i].y - particles[i-1].y)*(particles[i+1].y - particles[i].y));
+			// console.log(cos_phi);
+			let cs = 10;
+			let F_izg_x = 0;
+			let F_izg_y = 0;
+			if(Math.abs(Math.abs(cos_phi) - 1)> 0.001 && document.getElementById('radio2').checked)
+			{
+				let koef = cs * (Math.acos(cos_phi) - Math.PI) * Math.pow(l_next*l_prev,-2);
+				console.log(koef);
+				F_izg_x = koef * (((particles[i+1].x - particles[i - 1].x - 2 * particles[i].x)*l_next*l_prev) - scalar_multiplication*((l_next*(particles[i].x - particles[i - 1].x))/(l_prev*l_prev)+(l_prev*(particles[i].x - particles[i + 1].x))/(l_next*l_next)));
+				F_izg_y = koef * (((particles[i+1].y - particles[i - 1].y - 2 * particles[i].y)*l_next*l_prev) - scalar_multiplication*((l_next*(particles[i].y - particles[i - 1].y))/(l_prev*l_prev)+(l_prev*(particles[i].y - particles[i + 1].y))/(l_next*l_next)));
+				console.log(F_izg_x + " " + F_izg_y + " " + cos_phi + " " + koef);
+			}
+			if(document.getElementById('radio').checked && i == 1)
+			{
+				dvx = -F_izg_x;
+				dvy = - F_izg_y ;
+
+				particles[0].dvx = dvx;
+				particles[0].dvy = dvy;
+				particles[0].vx += dvx*dt;
+				particles[0].vy += dvy*dt;
+			}
+			dvx = cm*(FR*(particles[i+1].x - particles[i].x)/l_next - FL*(particles[i].x - particles[i-1].x)/l_prev) - Betta*particles[i].vx - F_izg_x;
+			dvy = cm*(FR*(particles[i+1].y - particles[i].y)/l_next - FL*(particles[i].y - particles[i-1].y)/l_prev) - Betta*particles[i].vy - F_izg_y - 10;
 			particles[i].dvx = dvx;
 			particles[i].dvy = dvy;
 			particles[i].vx += dvx*dt ;
@@ -162,12 +178,12 @@ function main() {
 		}
 
 		dvx = cm*(FR*(particles[1].x - particles[0].x)/l_next) - Betta*particles[0].vx;
-		dvy = (cm*(FR*(particles[1].y - particles[0].y)/l_next)) - Betta*particles[0].vy;
+		dvy = (cm*(FR*(particles[1].y - particles[0].y)/l_next)) - Betta*particles[0].vy - 10;
 
 		if(document.getElementById('radio').checked)
 		{
-			particles[0].dvx = dvx;
-			particles[0].dvy = dvy;
+			particles[0].dvx += dvx;
+			particles[0].dvy += dvy;
 			particles[0].vx += dvx*dt;
 			particles[0].vy += dvy*dt;
 		}

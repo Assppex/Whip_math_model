@@ -2,16 +2,16 @@
 <html>
 	<head>
 		<title> Кнут Механика Дискретных Сред </title>
-		<script src = 'Chain2.js'>
+		<script src = 'knut.js'>
 		</script>
-		<link rel = "stylesheet" type = "text/css" href = "chain2.css">
+		<link rel = "stylesheet" type = "text/css" href = "knut.css">
 	</head>
 	<body>
 		<div id = 'Canv'>
 			<b>
 			</br>
 			</br>
-			<br><label> Отношение жесткость/масса <input type = 'text' id = 'CM' value = '1000'></label>
+			<br><label> Отношение жесткость/масса <input type = 'text' id = 'CM' value = '3000'></label>
 			</br>
 			</br>
 			<label>Шаг по времени <input type = 'text' id = 'timestep' value = '0.01'></label>
@@ -20,7 +20,7 @@
 			<label>Частота кадров<input type = 'range' id = 'FPS' min = 10 step = 10 value = 120 max = 120></label>
 			</br>
 			</br>
-			<label> Расстояние между частицами <input type = 'text' id = 'distance' value = '14'>
+			<label> Расстояние между частицами <input type = 'text' id = 'distance' value = '15'>
 			</br>
 			</br>
 			<label>Сопротивление <input type = 'text' id = 'B' value = '1'></label>
@@ -35,7 +35,10 @@
 			<label>Амплитуда <input type = 'text' id = 'ampl' value = '30'></label>
 			</br>
 			</br>
-			<label>Отпустить левый конец <input type = 'checkbox' id = 'radio'></label>
+			<label>Отпустить левый конец <input type = 'checkbox' id = 'radio' checked = 'false'></label>
+			</br>
+			</br>
+			<label>Изгибная жесткость <input type = 'checkbox' id = 'radio2' checked = 'false'></label>
 			</br>
 			</br>
 			<label>Рисовать каждый <input type = 'text' id = 'times' value = 1> шаг</label> 
