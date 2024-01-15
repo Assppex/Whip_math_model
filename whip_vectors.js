@@ -71,7 +71,7 @@ var time = 0;
 //задаем НУ N - кол-во частиц   a - начальное расстояние между частицами
 function initial_cond(N,a)
 {
-    let len = N*a + w/2;
+    let len = N*a + 2*w;
     cnv.width = len;
     for(var i = 0; i < N;i++)
     {
@@ -87,7 +87,8 @@ function initial_cond(N,a)
         particles[i] = tmp;
     }
 
-    // particles[N/2].rvec.y = h/2 - 50;
+    // particles[N-1].velvec.y = 100;
+    // particles[N-1].velvec.x = -100;
 }
 
 //Рисуем кнут
@@ -131,94 +132,152 @@ refresh.onclick = function refresh()
 }
 let flag = 0;
 let count = 0;
-//Пересчет координат
-function physics(N,cm,a,dt)
+function izg1(start,end,i)
 {
-    for(var i = 0; i < N; i++)
+    let csm = 50;
+    let F = new vec(0,0);
+    for (var j = start ; j < end; j++)
     {
-        particles[i].izg.x = 0;
-        particles[i].izg.y = 0;
-    }
+        let rr = particles[i+ j + 1].rvec.minus_vec(particles[i+j].rvec);
+        let rl = particles[i + j -1].rvec.minus_vec(particles[i+j].rvec);
 
-    for(var i = 1; i < N - 1; i++)
-    {
-        let csm = 50;
-        let rr = particles[i+1].rvec.minus_vec(particles[i].rvec); // вектор между i и i+1 частицами
-        let rl = particles[i-1].rvec.minus_vec(particles[i].rvec); // вектор между i и i-1 частицами
 
         let len_right = rr.get_len();
         let len_left = rl.get_len();
-        let a_izg_i = new vec(0,0);
-        let a_izg_left = new vec(0,0);
-        let a_izg_right = new vec(0,0);
+
         let cos = rr.get_unit().scal_mult(rl.get_unit());
         let phi = Math.acos(cos);
 
-        if(phi != Math.PI && phi != 0 && Math.abs(cos - 1) > 0.01)
+        if(phi != Math.PI && phi != 0 && cos*cos <1)
         {
-            let k = csm * (phi - Math.PI)* Math.pow(len_left*len_right,-2);
-            
-            let tmp = rl.multiply_on_scalar(len_right/len_left);
-            a_izg_left = rr.multiply_on_scalar(len_left*len_right).minus_vec(tmp.multiply_on_scalar(rr.scal_mult(rl)));
-            a_izg_left = a_izg_left.multiply_on_scalar(-k);
+            let koef = - csm * (phi - Math.PI)*Math.pow(1 - cos*cos,-1/2);
 
-            tmp = rr.multiply_on_scalar(len_left/len_right).sum_vec(rl.multiply_on_scalar(len_right/len_left));
-            a_izg_i = particles[i].rvec.multiply_on_scalar(2).minus_vec(rr.sum_vec(rl)).multiply_on_scalar(len_left*len_right).sum_vec(tmp.multiply_on_scalar(rr.scal_mult(rl)));
-            a_izg_i = a_izg_i.multiply_on_scalar(-k);
-
-            tmp = rr.multiply_on_scalar(len_left/len_right);
-            a_izg_right = rl.multiply_on_scalar(len_left*len_right).minus_vec(tmp.multiply_on_scalar(rr.scal_mult(rl)));
-            a_izg_right= a_izg_right.multiply_on_scalar(-k);
-
-            if(rr.y > 0 && rl.y > 0)
+            switch(j)
             {
-                if(a_izg_i.y < 0)
+                case 0:
                 {
-                    a_izg_i.y *= -1;
-                }
-                // if(a_izg_right.y > 0)
-                // {
-                //     a_izg_i.y *= -1;
-                // }
-                // if(a_izg_left.y > 0)
-                // {
-                //     a_izg_i.y *= -1;
-                // }
-            }
+                    let tmp1 = particles[i+j].rvec.multiply_on_scalar(2);
+                    tmp1 = tmp1.minus_vec(particles[i + j -1].rvec);
+                    tmp1 = tmp1.minus_vec(particles[i+ j + 1].rvec);
+                    tmp1 = tmp1.multiply_on_scalar(1/(len_left*len_right));
 
-            if(rr.y < 0 && rl.y < 0)
-            {
-                if(a_izg_i.y > 0)
+                    let tmp2 = rl.multiply_on_scalar(len_right/len_left);
+                    let tmp3 = rr.multiply_on_scalar(len_left/len_right);
+
+                    let tmp4 = tmp2.sum_vec(tmp3);
+                    tmp4 = tmp4.multiply_on_scalar(rl.scal_mult(rr)/(Math.pow(len_left*len_right,2)));
+
+                    let result = tmp1.sum_vec(tmp4);
+                    result = result.multiply_on_scalar(koef);
+
+                    F = F.minus_vec(result);
+                    break;
+                }
+
+                case -1:
                 {
-                    a_izg_i.y *= -1;
-                }
-                // if(a_izg_right.y < 0)
-                // {
-                //     a_izg_i.y *= -1;
-                // }
-                // if(a_izg_left.y < 0)
-                // {
-                //     a_izg_i.y *= -1;
-                // }
-            }
+                    let tmp1 = rl.multiply_on_scalar(1/(len_left*len_right));
 
+                    let tmp2 = rr.multiply_on_scalar(len_left/len_right);
+                    let tmp3 = tmp2.multiply_on_scalar(rl.scal_mult(rr)/(Math.pow(len_left*len_right,2)));
+
+                    let result = tmp1.minus_vec(tmp3);
+                    result = result.multiply_on_scalar(koef);
+
+                    F = F.minus_vec(result);
+                    break;                        
+                }
+
+                case 1:
+                {
+                    let tmp1 = rr.multiply_on_scalar(1/(len_left*len_right));
+
+                    let tmp2 = rl.multiply_on_scalar(len_right/len_left);
+                    let tmp3 = tmp2.multiply_on_scalar(rl.scal_mult(rr)/(Math.pow(len_left*len_right,2)));
+
+                    let result = tmp1.minus_vec(tmp3);
+                    result = result.multiply_on_scalar(koef);
+
+                    F = F.minus_vec(result);
+                    break;                        
+                }
+
+            }
             
-            console.log("HI",a_izg_left,a_izg_right,a_izg_i)
         }
-        // particles[i-1].izg = particles[i-1].izg.sum_vec(a_izg_left);
-        particles[i].izg = particles[i].izg.sum_vec(a_izg_i);
-        // particles[i+1].izg = particles[i+1].izg.sum_vec(a_izg_right);
+        return F;
+    }   
+}
+
+//Пересчет координат
+function physics(N,cm,a,dt)
+{
+    for(var i = 0; i < N ; i++)
+    {
+        
+
+        // let rr = particles[i+1].rvec.minus_vec(particles[i].rvec); // вектор между i и i+1 частицами
+        // let rl = particles[i-1].rvec.minus_vec(particles[i].rvec); // вектор между i и i-1 частицами
+        
+        let F = new vec(0,0);
+
+        if( i >= 2 && i <= N-3)
+        {
+            F = izg1(-1,2,i);
+        }
+        else if(i == 1)
+        {
+            F = izg1(0,2,i)
+        }
+        else if(i == 0)
+        {
+            F = izg1(1,2,i);
+        }
+        else if(i == N-2)
+        {
+            F = izg1(-1,1,i)
+        }
+        else if(i == N-1)
+        {
+            F = izg1(-1,0,i)
+        }
+        
+
+        particles[i].izg = F;
+        console.log("F" + F.x);
+
     }
-    
+
     let rr = particles[1].rvec.minus_vec(particles[0].rvec); // вектор между i и i+1 частицами
     let len_right = rr.get_len();
     let dlr = len_right - a;
     let ar = rr.get_unit();
     ar = ar.multiply_on_scalar(cm * dlr);
-    let full_a = ar.sum_vec(new vec(0,0)).minus_vec(particles[0].velvec).minus_vec(particles[0].izg).minus_vec(particles[1].izg);
+    let full_a = ar.sum_vec(new vec(0,20)).minus_vec(particles[0].velvec.multiply_on_scalar(0)).sum_vec(particles[0].izg);
     
     dv = full_a.multiply_on_scalar(dt);
     particles[0].velvec = particles[0].velvec.sum_vec(dv);
+
+    let rl = particles[N-1].rvec.minus_vec(particles[N-2].rvec); // вектор между i и i+1 частицами
+    let len_left = rl.get_len();
+    let dll = len_left - a;
+    let al = rl.get_unit();
+    al = al.multiply_on_scalar(cm * dll);
+    full_a = ar.sum_vec(new vec(0,0)).minus_vec(particles[N-1].velvec.multiply_on_scalar(0)).sum_vec(particles[N-1].izg);
+
+    if(time < 4*Math.PI/5)
+    {
+        // particles[N-1].rvec.y = h/2 + 60 * Math.sin(5* time); 
+    }
+    else
+    {
+        v = full_a.multiply_on_scalar(dt);
+        particles[N-1].velvec = particles[N-1].velvec.sum_vec(dv);
+        particles[N-1].velvec.x = 0;
+        particles[N-1].velvec.y = 0;
+    }
+    
+
 
     for(var i = 1; i < N - 1; i++)
     {
@@ -241,18 +300,19 @@ function physics(N,cm,a,dt)
         al =al.multiply_on_scalar(cm * dll);// вектор ускорения от силы между i и i-1 частицами
 
         
-        let full_a = ar.sum_vec(al).sum_vec(new vec(0,0)).minus_vec(particles[i].velvec).minus_vec(particles[i].izg).minus_vec(particles[i-1].izg).minus_vec(particles[i+1].izg);
+        let full_a = ar.sum_vec(al).sum_vec(new vec(0,20)).minus_vec(particles[i].velvec.multiply_on_scalar(0)).sum_vec(particles[i].izg);
 
         dv = full_a.multiply_on_scalar(dt);
         particles[i].velvec = particles[i].velvec.sum_vec(dv);
         console.log(particles[i].rvec.y);
     }
 
-    for (var i = 0; i<N-1; i++) {
+    for (var i = 0; i<N; i++)
+    {
         dr = particles[i].velvec.multiply_on_scalar(dt);
         particles[i].rvec = particles[i].rvec.sum_vec(dr);
     }   
-     particles[N-1].rvec.y = h/2 + 30 * Math.sin(5* time); 
+
 }
 
 function control(N,cm,a,dt)
