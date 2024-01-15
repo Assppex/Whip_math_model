@@ -65,7 +65,6 @@ function main() {
 		cm = parseFloat(document.getElementById('CM').value);
 		a = parseFloat(document.getElementById('distance').value);
 		dt0 = parseFloat(document.getElementById('timestep').value);
-		Betta = parseFloat(document.getElementById('B').value);
 		fps = parseInt(document.getElementById('FPS').value);
 		times_draw = parseInt(document.getElementById('times').value);
 		amplitude = document.getElementById('ampl').value;
@@ -158,8 +157,8 @@ function main() {
 				particles[0].vx += dvx*dt;
 				particles[0].vy += dvy*dt;
 			}
-			dvx = cm*(FR*(particles[i+1].x - particles[i].x)/l_next - FL*(particles[i].x - particles[i-1].x)/l_prev) - Betta*particles[i].vx - F_izg_x;
-			dvy = cm*(FR*(particles[i+1].y - particles[i].y)/l_next - FL*(particles[i].y - particles[i-1].y)/l_prev) - Betta*particles[i].vy - F_izg_y - 10;
+			dvx = cm*(FR*(particles[i+1].x - particles[i].x)/l_next - FL*(particles[i].x - particles[i-1].x)/l_prev) - particles[i].vx - F_izg_x;
+			dvy = cm*(FR*(particles[i+1].y - particles[i].y)/l_next - FL*(particles[i].y - particles[i-1].y)/l_prev) - particles[i].vy - F_izg_y - 10;
 			particles[i].dvx = dvx;
 			particles[i].dvy = dvy;
 			particles[i].vx += dvx*dt ;
@@ -177,8 +176,8 @@ function main() {
 			FR = (l_next - a);
 		}
 
-		dvx = cm*(FR*(particles[1].x - particles[0].x)/l_next) - Betta*particles[0].vx;
-		dvy = (cm*(FR*(particles[1].y - particles[0].y)/l_next)) - Betta*particles[0].vy - 10;
+		dvx = cm*(FR*(particles[1].x - particles[0].x)/l_next) - particles[0].vx;
+		dvy = (cm*(FR*(particles[1].y - particles[0].y)/l_next)) - particles[0].vy - 10;
 
 		if(document.getElementById('radio').checked)
 		{
