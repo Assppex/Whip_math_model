@@ -4,7 +4,6 @@ function main() {
 	var N = document.getElementById('Num').value;
 	var a = document.getElementById('distance').value;
 	var fps = document.getElementById('FPS').value;
-	var radio = document.getElementById('radio').value;
 	var amplitude = document.getElementById('ampl').value;
 	var frequency = document.getElementById('freq').value;
 	var times_draw,dt,cm;
@@ -66,7 +65,6 @@ function main() {
 		a = parseFloat(document.getElementById('distance').value);
 		dt0 = parseFloat(document.getElementById('timestep').value);
 		fps = parseInt(document.getElementById('FPS').value);
-		times_draw = parseInt(document.getElementById('times').value);
 		amplitude = document.getElementById('ampl').value;
 		frequency = document.getElementById('freq').value;
 
@@ -147,7 +145,7 @@ function main() {
 				F_izg_y = koef * (((particles[i+1].y - particles[i - 1].y - 2 * particles[i].y)*l_next*l_prev) - scalar_multiplication*((l_next*(particles[i].y - particles[i - 1].y))/(l_prev*l_prev)+(l_prev*(particles[i].y - particles[i + 1].y))/(l_next*l_next)));
 				console.log(F_izg_x + " " + F_izg_y + " " + cos_phi + " " + koef);
 			}
-			if(document.getElementById('radio').checked && i == 1)
+			if(i == 1)
 			{
 				dvx = -F_izg_x;
 				dvy = - F_izg_y ;
@@ -179,13 +177,11 @@ function main() {
 		dvx = cm*(FR*(particles[1].x - particles[0].x)/l_next) - particles[0].vx;
 		dvy = (cm*(FR*(particles[1].y - particles[0].y)/l_next)) - particles[0].vy - 10;
 
-		if(document.getElementById('radio').checked)
-		{
-			particles[0].dvx += dvx;
-			particles[0].dvy += dvy;
-			particles[0].vx += dvx*dt;
-			particles[0].vy += dvy*dt;
-		}
+		particles[0].dvx += dvx;
+		particles[0].dvy += dvy;
+		particles[0].vx += dvx*dt;
+		particles[0].vy += dvy*dt;
+
 
 		for (var i = 0; i<N-1; i++)
 		{ 
@@ -202,6 +198,7 @@ function main() {
 		for (var i = 0; i<N; i++) { 
 			ctx.beginPath();
 			ctx.arc(particles[i].x,particles[i].y + 50, 5, 0, 2*Math.PI);
+			ctx.fillStyle = "white";
 			ctx.fill();
 		}
 
@@ -210,9 +207,8 @@ function main() {
 	function control()
 	{ 
 		physics();
-		if (time % times_draw == 0) { 
-			render();
-		}
+		render();
+
 		time++;
 	}
 	
